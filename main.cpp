@@ -4,31 +4,26 @@
 
 using namespace std;
 
-// Example:
-// ./a.out 1000 18 50
+// Example: ./a.out 1000 18 50
 
 int main(int argc, char* argv[])
 {
-    // =====================================================
-    // PART 1: VALIDATE AND CONVERT COMMAND-LINE INPUT
-    // =====================================================
-
     if (argc > 4)
     {
         cout << "Too many arguments. Cannot pass in more than three."
              << endl;
-        return -1;
+        return 0;
     }
 
     double loan_amount;
     double yearly_interest_rate;
     double monthly_payment;
 
-    // Check and convert the loan amount.
+    // Validate loan amount.
     if (argc < 2)
     {
         cout << "(Invalid loan amount)" << endl;
-        return -2;
+        return 0;
     }
 
     try
@@ -38,25 +33,25 @@ int main(int argc, char* argv[])
     catch (const invalid_argument&)
     {
         cout << "(Invalid loan amount): " << argv[1] << endl;
-        return -2;
+        return 0;
     }
     catch (const out_of_range&)
     {
         cout << "(Invalid loan amount): " << argv[1] << endl;
-        return -2;
+        return 0;
     }
 
     if (loan_amount <= 0)
     {
         cout << "(Invalid loan amount): " << argv[1] << endl;
-        return -2;
+        return 0;
     }
 
-    // Check and convert the interest rate.
+    // Validate interest rate.
     if (argc < 3)
     {
         cout << "(Invalid interest rate)" << endl;
-        return -2;
+        return 0;
     }
 
     try
@@ -67,13 +62,13 @@ int main(int argc, char* argv[])
     {
         cout << "(Invalid interest rate): "
              << argv[1] << " " << argv[2] << endl;
-        return -2;
+        return 0;
     }
     catch (const out_of_range&)
     {
         cout << "(Invalid interest rate): "
              << argv[1] << " " << argv[2] << endl;
-        return -2;
+        return 0;
     }
 
     // Zero interest is valid.
@@ -81,14 +76,14 @@ int main(int argc, char* argv[])
     {
         cout << "(Invalid interest rate): "
              << argv[1] << " " << argv[2] << endl;
-        return -2;
+        return 0;
     }
 
-    // Check and convert the monthly payment.
+    // Validate monthly payment.
     if (argc < 4)
     {
         cout << "(Invalid payment)" << endl;
-        return -2;
+        return 0;
     }
 
     try
@@ -101,7 +96,7 @@ int main(int argc, char* argv[])
              << argv[1] << " "
              << argv[2] << " "
              << argv[3] << endl;
-        return -2;
+        return 0;
     }
     catch (const out_of_range&)
     {
@@ -109,7 +104,7 @@ int main(int argc, char* argv[])
              << argv[1] << " "
              << argv[2] << " "
              << argv[3] << endl;
-        return -2;
+        return 0;
     }
 
     if (monthly_payment <= 0)
@@ -118,22 +113,14 @@ int main(int argc, char* argv[])
              << argv[1] << " "
              << argv[2] << " "
              << argv[3] << endl;
-        return -2;
+        return 0;
     }
-
-    // =====================================================
-    // PART 2: INITIALIZE LOAN VARIABLES
-    // =====================================================
 
     double balance = loan_amount;
 
-    // Example: 18% yearly becomes 1.5% monthly.
-    double monthly_interest_percent =
-        yearly_interest_rate / 12.0;
-
-    // Example: 1.5% becomes 0.015 for calculations.
-    double monthly_interest_rate =
-        monthly_interest_percent / 100.0;
+    // Convert yearly percentage to a monthly percentage and decimal rate.
+    double monthly_interest_percent = yearly_interest_rate / 12.0;
+    double monthly_interest_rate = monthly_interest_percent / 100.0;
 
     double monthly_interest = 0.0;
     double principal_paid = 0.0;
@@ -142,25 +129,15 @@ int main(int argc, char* argv[])
 
     int month = 0;
 
-    // =====================================================
-    // PART 3: CHECK FOR AN INSUFFICIENT PAYMENT
-    // =====================================================
-
-    double first_month_interest =
-        balance * monthly_interest_rate;
+    double first_month_interest = balance * monthly_interest_rate;
 
     if (monthly_payment <= first_month_interest)
     {
         cout << "Insufficient payment. The monthly payment "
              << "must be greater than the monthly interest."
              << endl;
-
-        return -3;
+        return 0;
     }
-
-    // =====================================================
-    // PART 4: FORMAT THE OUTPUT
-    // =====================================================
 
     cout << fixed << showpoint << setprecision(2);
 
@@ -171,18 +148,13 @@ int main(int argc, char* argv[])
          << monthly_payment << endl;
     cout << endl;
 
-    // =====================================================
-    // PART 5: PRINT THE AMORTIZATION TABLE
-    // =====================================================
-
     cout << "*****************************************************************\n"
          << "\tAmortization Table\n"
          << "*****************************************************************\n"
          << "Month\tBalance\t\tPayment\tRate\tInterest\tPrincipal\n";
 
-    // Month zero represents the balance before any payments.
-    cout << month
-         << "\t$" << balance;
+    // Month zero is the balance before any payments.
+    cout << month << "\t$" << balance;
 
     if (balance < 1000)
     {
@@ -191,50 +163,29 @@ int main(int argc, char* argv[])
 
     cout << "\tN/A\tN/A\tN/A\t\tN/A\n";
 
-    // =====================================================
-    // PART 6: CALCULATE EACH MONTH
-    // =====================================================
-
     while (balance > 0)
     {
         month++;
 
-        // Calculate interest using the balance at the
-        // beginning of this month.
-        monthly_interest =
-            balance * monthly_interest_rate;
+        monthly_interest = balance * monthly_interest_rate;
 
-        /*
-         * Determine whether the normal payment is greater
-         * than the entire amount currently owed, including
-         * this month's interest.
-         */
         if (balance + monthly_interest < monthly_payment)
         {
-            // Final payment
+            // Final payment.
             principal_paid = balance;
-            actual_payment =
-                principal_paid + monthly_interest;
-
+            actual_payment = principal_paid + monthly_interest;
             balance = 0.0;
         }
         else
         {
-            // Regular payment
+            // Regular payment.
             actual_payment = monthly_payment;
-
-            principal_paid =
-                actual_payment - monthly_interest;
-
-            balance =
-                balance - principal_paid;
+            principal_paid = actual_payment - monthly_interest;
+            balance = balance - principal_paid;
         }
 
-        // Add this month's interest to the running total.
-        total_interest =
-            total_interest + monthly_interest;
+        total_interest = total_interest + monthly_interest;
 
-        // Print this month's row.
         cout << month
              << "\t$" << balance
              << "\t\t$" << actual_payment
@@ -243,10 +194,6 @@ int main(int argc, char* argv[])
              << "\t\t$" << principal_paid
              << endl;
     }
-
-    // =====================================================
-    // PART 7: FINAL SUMMARY
-    // =====================================================
 
     cout << "*****************************************************************\n";
 
